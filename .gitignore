@@ -1,0 +1,9 @@
+# IDE config
+.idea
+.vscode
+
+# Node dependencies
+node_modules/
+
+# Compiled Javascript package
+/lib/
