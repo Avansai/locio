@@ -7,3 +7,6 @@ node_modules/
 
 # Compiled Javascript package
 /lib/
+
+# Secrets
+.env
