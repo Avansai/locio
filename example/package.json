@@ -1,0 +1,11 @@
+{
+  "name": "locio-example",
+  "private": true,
+  "license": "MIT",
+  "scripts": {
+    "locio-export": "locio"
+  },
+  "devDependencies": {
+    "locio": "file:.."
+  }
+}
