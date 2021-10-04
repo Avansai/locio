@@ -5,9 +5,9 @@ import { hideBin } from 'yargs/helpers';
 import fs from 'fs-extra';
 import path from 'path';
 import { demandOneOfOption } from './yargs-helper';
-import { execSync } from 'child_process';
-import micromatch from 'micromatch';
+
 import { x86 as murmur } from 'murmurhash3js';
+import { getModifiedFiles, getUntrackedFiles } from './git-helper';
 
 export type FileMap = {
   sourceFilePath: string;
@@ -33,26 +33,37 @@ const args = yargs(hideBin(process.argv))
     type: 'string',
     describe: 'Specify the file filter',
     conflicts: 'import',
+    default: '**/*.properties',
+  })
+  .option('ignore-untracked', {
+    alias: 'u',
+    type: 'boolean',
+    describe: 'Ignore untracked files',
+    conflicts: 'import',
+    default: false,
   })
   .check(demandOneOfOption('export', 'import'))
   .parse();
 
 if (args.export) {
-  const fileFilter = args.filter ? args.filter : '*.properties';
+  console.dir(args);
+  const modifiedFiles = getModifiedFiles(args.filter);
 
-  const changedFiles = execSync('git diff --name-only origin/HEAD')
-    .toString()
-    .replace('\r', '')
-    .split('\n')
-    .filter((filePath) => filePath.length)
-    .map((filePath) => path.normalize(filePath))
-    .filter((filePath) => micromatch.isMatch(filePath, fileFilter));
+  if (!args['ignore-untracked']) {
+    const untrackedFiles = getUntrackedFiles(args.filter);
+    console.dir('untrackedFiles');
+    console.dir(untrackedFiles);
+  }
 
-  console.dir(changedFiles);
+  // add tracked - compare tracked and untracked
+  /// git ls-files --others --exclude-standard
+
+  console.dir('modifiedFiles');
+  console.dir(modifiedFiles);
 
   const filesMap: FileMap[] = [];
 
-  changedFiles.forEach((filePath) => {
+  modifiedFiles.forEach((filePath) => {
     const fileHash = murmur.hash128(filePath);
     let usableFileHash = fileHash;
 
