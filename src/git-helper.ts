@@ -1,11 +1,12 @@
 import path from 'path';
 import { execSync } from 'child_process';
 import micromatch from 'micromatch';
+import glob from 'glob';
 
 /**
  * Get the list of modified files compared to `origin/HEAD`.
  *
- * @param filter - The filter to apply ono the file output.
+ * @param filter - The filter to apply on the file output.
  *
  * @returns The filtered list of modified files, in a normalized format.
  */
@@ -16,7 +17,7 @@ export function getModifiedFiles(filter: string): string[] {
 /**
  * Get the list of untracked files (not added/committed in Git).
  *
- * @param filter - The filter to apply ono the file output.
+ * @param filter - The filter to apply on the file output.
  *
  * @returns The filtered list of untracked files, in a normalized format.
  */
@@ -25,10 +26,21 @@ export function getUntrackedFiles(filter: string): string[] {
 }
 
 /**
+ * Get the list of all files matching a given filter, regardless of their GitHub states.
+ *
+ * @param filter - The file filter used for the match.
+ *
+ * @returns The list of matching files, in a normalized format.
+ */
+export function getMatchingFiles(filter: string): string[] {
+  return glob.sync(filter).map((filePath) => path.normalize(filePath));
+}
+
+/**
  * Get files from the output of a command.
  *
  * @param command - The command that will output the list of files (each file path must be on its own line).
- * @param filter - The filter to apply ono the file output.
+ * @param filter - The filter to apply on the file output.
  *
  * @returns The filtered list of files, in a normalized format.
  */

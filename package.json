@@ -50,6 +50,7 @@
   "devDependencies": {
     "@release-it/conventional-changelog": "^3.3.0",
     "@types/fs-extra": "^9.0.13",
+    "@types/glob": "^7.1.4",
     "@types/micromatch": "^4.0.2",
     "@types/murmurhash3js": "^3.0.2",
     "@typescript-eslint/eslint-plugin": "^4.32.0",
@@ -77,6 +78,7 @@
   },
   "dependencies": {
     "fs-extra": "^10.0.0",
+    "glob": "^7.2.0",
     "micromatch": "^4.0.4",
     "murmurhash3js": "^3.0.1",
     "yargs": "^16.2.0"
