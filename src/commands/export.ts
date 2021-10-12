@@ -1,16 +1,22 @@
-import { getMatchingFiles, getModifiedFiles, getUntrackedFiles } from '../git-helper';
+import { getMatchingFiles, getModifiedFiles, getUntrackedFiles, isGitIgnored } from '../git-helper';
 
-import fs from 'fs-extra';
+import { ensureDirSync } from 'fs-extra';
 import path from 'path';
 
 import { x86 as murmur } from 'murmurhash3js';
+import { log, warn } from '../logger';
 
 export type ManifestEntry = {
   sourceFilePath: string;
   translatableFilename: string;
 };
 
-export function exportCommand(fileFilter: string, ignoreUntracked: boolean, matchAll: boolean) {
+export function exportCommand(
+  fileFilter: string,
+  ignoreUntracked: boolean,
+  matchAll: boolean,
+  workingDirectory: string
+) {
   const modifiedFiles = !matchAll ? getModifiedFiles(fileFilter) : [];
   const untrackedFiles = !ignoreUntracked && !matchAll ? getUntrackedFiles(fileFilter) : [];
   const matchingFiles = matchAll ? getMatchingFiles(fileFilter) : [];
@@ -46,6 +52,18 @@ export function exportCommand(fileFilter: string, ignoreUntracked: boolean, matc
       translatableFilename: translatableFilename,
     });
   });
+
+  if (!translationManifest.length) {
+    log('No localizable files could be found.', true);
+  }
+
+  ensureDirSync(workingDirectory);
+
+  if (!isGitIgnored(workingDirectory)) {
+    warn(
+      `please add the '${workingDirectory}' working directory in your '.gitignore' file to avoid adding temporary translation files in your repository.`
+    );
+  }
 
   console.dir(translationManifest);
 }

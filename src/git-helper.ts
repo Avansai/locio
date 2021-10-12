@@ -53,3 +53,20 @@ function getFilesFromCommand(command: string, filter: string): string[] {
     .filter((filePath) => micromatch.isMatch(filePath, filter))
     .map((filePath) => path.normalize(filePath));
 }
+
+/**
+ * Is a given pathname ignored by GitHub?
+ *
+ * @param pathname - The pathname to verify.
+ *
+ * @returns True when ignored by GitHub, otherwise false.
+ */
+export function isGitIgnored(pathname: string): boolean {
+  try {
+    // "git check-ignore" returns an error status when the pathname is not ignored.
+    return !!execSync(`git check-ignore ${pathname}`).toString().trim().length;
+  } catch (error) {
+    // Silently ignores error - this is useful is the file checked is outside the current repository, to avoid fatal errors.
+  }
+  return false;
+}

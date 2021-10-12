@@ -2,6 +2,8 @@
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { exportCommand } from './commands/export';
+import { resolve } from 'path';
+import { realpathSync } from 'fs-extra';
 
 // Use `require` to avoid rebasing `rootDir` when compiling - @see https://stackoverflow.com/questions/50822310/how-to-import-package-json-in-typescript/50827008#answer-53836076
 const version = require('../package.json').version;
@@ -10,14 +12,14 @@ yargs(hideBin(process.argv))
   .scriptName('locio')
   .usage('$0 <cmd> [args]')
   .command(
-    'export [-f] [-u] [-a] [--help]',
+    'export [-f] [-u] [-a] [-w] [--help]',
     'Export (create) a package to be translated',
     (yargs) => {
       yargs
         .option('file-filter', {
           alias: 'f',
           demandOption: false,
-          describe: `Specify the file filter`,
+          describe: `The filter use to find the localizable files`,
           type: 'string',
           default: '**/*.properties',
         })
@@ -34,15 +36,23 @@ yargs(hideBin(process.argv))
           type: 'boolean',
           conflicts: 'ignore-untracked',
         })
+        .option('working-directory', {
+          alias: 'w',
+          demandOption: false,
+          describe: `The directory used to export and import localizable files`,
+          type: 'string',
+          default: 'translation-tasks',
+        })
         .version(false);
     },
     (argv) => {
       const fileFilter = argv.fileFilter as string;
       const ignoreUntracked = !!argv.ignoreUntracked as boolean;
       const matchAll = !!argv.matchAll as boolean;
+      const workingDirectory = argv.workingDirectory as string;
 
       try {
-        exportCommand(fileFilter, ignoreUntracked, matchAll);
+        exportCommand(fileFilter, ignoreUntracked, matchAll, workingDirectory);
         process.exit();
       } catch (error) {
         console.error(`ERROR: ${(error as Error).message}`);
